@@ -41,7 +41,9 @@ class Graph
     end
 
     # add current_position to list of spaces visited and remove it from queue
-    values << queue[0]
+    unless values.include? queue[0]
+      values << queue[0]
+    end
     queue.shift
 
     # create the root using current position
@@ -81,6 +83,10 @@ class Knight
     # Use the chosen search algorithm to find the shortest path between
     # the starting square (or node) and the ending square.
     moves_graph = Graph.new.build_graph(current_position, end_position, @game_board.board)
+
+    path = []
+
+    moves_graph
   end
 end
 
