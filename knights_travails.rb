@@ -1,8 +1,25 @@
 class Vertex
-  attr_accessor :coordinate
+  attr_accessor \
+    :coordinate,
+    :option_one,
+    :option_two,
+    :option_three,
+    :option_four,
+    :option_five,
+    :option_six,
+    :option_seven,
+    :option_eight
 
   def initialize
     @coordinate = []
+    @option_one = nil
+    @option_two = nil
+    @option_three = nil
+    @option_four = nil
+    @option_five = nil
+    @option_six = nil
+    @option_seven = nil
+    @option_eight = nil
   end
 end
 
@@ -10,7 +27,7 @@ class Graph
   attr_accessor :root
 
   def initialize
-    @root = []
+    @root = nil
   end
 end
 
