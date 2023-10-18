@@ -1,25 +1,11 @@
 class Vertex
   attr_accessor \
     :coordinate,
-    :option1,
-    :option2,
-    :option3,
-    :option4,
-    :option5,
-    :option6,
-    :option7,
-    :option8
+    :parent
 
-  def initialize(coordinate)
+  def initialize(coordinate, parent)
     @coordinate = coordinate
-    @option1 = nil
-    @option2 = nil
-    @option3 = nil
-    @option4 = nil
-    @option5 = nil
-    @option6 = nil
-    @option7 = nil
-    @option8 = nil
+    @parent = parent
   end
 end
 
@@ -30,24 +16,18 @@ class Graph
     @root = nil
   end
 
-  def build_graph(current_position, end_position, array, queue = [], values = [])
-    # take the current position, and map out moves on a BFS basis, until end_position is found
-
-    return if values.include? end_position
-
-    # add current_position to queue on first call
-    if queue.empty?
-      queue << current_position
+  def build_graph(current_position, end_position, array, current_vertex = nil, queue = [], values = [], parent = nil)
+    # create the first vertex
+    if current_vertex.nil?
+      current_vertex = Vertex.new(current_position, nil)
+      queue << current_vertex
     end
 
     # add current_position to list of spaces visited and remove it from queue
-    unless values.include? queue[0]
-      values << queue[0]
-    end
+    values << current_vertex
     queue.shift
 
-    # create the root using current position
-    @root = Vertex.new(current_position)
+    return if current_position == end_position
 
     # create all 8 possible options (if valid) and add to queue
     current_position_moves = [[current_position[0] - 1, current_position[1] + 2],
@@ -59,13 +39,13 @@ class Graph
                               [current_position[0] - 2, current_position[1] - 1],
                               [current_position[0] - 2, current_position[1] + 1]]
 
-    # add possible moves to queue if they're within the board
+    # add possible moves as vertices to queue if they're within the board
     8.times do |x|
-      if array.include? current_position_moves[x] then queue << current_position_moves[x] end
+      if array.include? current_position_moves[x] then queue << Vertex.new(current_position_moves[x], current_vertex) end
     end
 
     # call build_graph on first item in queue
-    build_graph(queue[0], end_position, array, queue, values)
+    build_graph(queue[0].coordinate, end_position, array, queue[0], queue, values, parent)
 
     # return values array
     values
@@ -73,28 +53,10 @@ class Graph
 end
 
 class Knight
-  attr_accessor
+  attr_accessor :game_board
 
   def initialize
-    @game_board = GameBoard.new
-  end
-
-  def knight_moves(current_position, end_position)
-    # Use the chosen search algorithm to find the shortest path between
-    # the starting square (or node) and the ending square.
-    moves_graph = Graph.new.build_graph(current_position, end_position, @game_board.board)
-
-    path = []
-
-    moves_graph
-  end
-end
-
-class GameBoard
-  attr_reader :board
-
-  def initialize
-    @board = create_board
+    @game_board = create_board
   end
 
   def create_board
@@ -107,7 +69,36 @@ class GameBoard
     end
     array
   end
+
+  def knight_moves(start_position, end_position)
+    unless @game_board.include? start_position
+      puts 'Invalid starting position'
+      return
+    end
+    unless @game_board.include? end_position
+      puts 'Invalid starting position'
+      return
+    end
+
+    moves_graph = Graph.new.build_graph(start_position, end_position, @game_board)
+
+    current_vertex = moves_graph[-1]
+    values = []
+    moves_graph.length.times do
+      values << current_vertex.coordinate
+      current_vertex = current_vertex.parent
+      if current_vertex.coordinate == start_position
+        values << current_vertex.coordinate
+        break
+      end
+    end
+
+    puts "You made it in #{values.length} moves!  Here's your path:"
+    values.reverse.each do |move|
+      p move
+    end
+  end
 end
 
 new_knight = Knight.new
-p new_knight.knight_moves([3, 5], [7, 7])
+new_knight.knight_moves([1, 5], [4, 0])
